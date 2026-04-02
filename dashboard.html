@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ECO — Client Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="styles.css"/>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<div class="app">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">ECO</div>
+      <div class="logo-sub">Ekokintsugi</div>
+    </div>
+
+    <div class="sidebar-client">
+      <div class="client-avatar" id="clientAvatar">RK</div>
+      <div>
+        <div class="client-name" id="clientName">Rahul Kapoor</div>
+        <div class="client-id" id="clientId">Client #EKO-2024-011</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+
+      <a class="nav-item active" onclick="navigate('overview', this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="7" height="7" rx="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5"/>
+          <rect x="2" y="11" width="7" height="7" rx="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5"/>
+        </svg>
+        Overview
+      </a>
+
+      <a class="nav-item" onclick="navigate('payment', this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="5" width="16" height="11" rx="2"/><path d="M2 9h16"/><circle cx="6" cy="13" r="1" fill="currentColor" stroke="none"/>
+        </svg>
+        Payment Tracking
+      </a>
+
+      <a class="nav-item" onclick="navigate('orders', this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 4h14M3 10h14M3 16h8"/><circle cx="16" cy="16" r="3"/><path d="M15 16h2M16 15v2"/>
+        </svg>
+        Order Tracking
+        <span class="nav-badge" id="activeOrdersBadge">0</span>
+      </a>
+
+      <a class="nav-item" onclick="navigate('delays', this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="10" cy="10" r="8"/><path d="M10 6v4l2.5 2.5"/>
+        </svg>
+        Delays & Shipping
+      </a>
+
+      <div class="nav-section-label">History</div>
+
+      <a class="nav-item" onclick="navigate('history', this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4v5h5"/><path d="M4 9A7 7 0 1 0 5.3 5"/>
+        </svg>
+        Order History
+      </a>
+
+      <div class="nav-section-label">Account</div>
+      <a class="nav-item" onclick="handleLogout()">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Logout
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="status-dot"></div>
+      All systems operational
+    </div>
+  </aside>
+
+  <!-- ── Header ── -->
+  <header class="header">
+    <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+
+    <div class="header-title" id="header-title">
+      Dashboard <span>Overview</span>
+    </div>
+
+    <div class="header-search">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <circle cx="7" cy="7" r="5"/><path d="M12 12l2 2"/>
+      </svg>
+      <input type="text" id="searchInput" placeholder="Search orders…" oninput="handleSearch()" onblur="hideSearch()"/>
+      <div class="search-results" id="searchResults"></div>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn-icon notif-dot" id="notifBtn" onclick="toggleNotif()" title="Notifications">
+        <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 2a6 6 0 0 1 6 6c0 3.3.9 5 1.7 6H2.3C3.1 13 4 11.3 4 8a6 6 0 0 1 6-6z"/>
+          <path d="M8.5 17a1.5 1.5 0 0 0 3 0"/>
+        </svg>
+      </button>
+      <button class="btn-icon" onclick="downloadReport()" title="Download report">
+        <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 16h12M10 4v9M6.5 9.5l3.5 4 3.5-4"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Notification Panel -->
+    <div class="notif-panel" id="notifPanel">
+      <div class="notif-panel-header">
+        <div class="notif-panel-title">Notifications</div>
+        <div class="notif-panel-clear" onclick="clearNotifs()">Clear all</div>
+      </div>
+      <div id="notifList"></div>
+    </div>
+  </header>
+
+  <!-- ── Main ── -->
+  <main class="main">
+
+    <!-- ─ Overview ─ -->
+    <section class="section active" id="section-overview">
+      <div class="page-header">
+        <div class="page-eyebrow" id="welcomeGreeting">Welcome back</div>
+        <div class="page-title">Your Orders at a Glance</div>
+        <div class="page-meta" id="overviewMeta">Last updated: —</div>
+      </div>
+
+      <div class="grid-4">
+        <div class="stat-card accent-sage">
+          <div class="stat-label">Total Orders</div>
+          <div class="stat-value" id="totalOrders">0</div>
+          <div class="stat-sub">All time</div>
+        </div>
+        <div class="stat-card accent-gold">
+          <div class="stat-label">Active Orders</div>
+          <div class="stat-value" id="activeOrders">0</div>
+          <div class="stat-sub">In progress</div>
+        </div>
+        <div class="stat-card accent-green">
+          <div class="stat-label">Completed</div>
+          <div class="stat-value" id="completedOrders">0</div>
+          <div class="stat-sub">Finished orders</div>
+        </div>
+        <div class="stat-card accent-muted">
+          <div class="stat-label">Overall Progress</div>
+          <div class="stat-value" id="overallProgress">0%</div>
+          <div class="stat-sub">Avg. completion</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Payment Summary</div>
+          <div class="card-subtitle">How much you've paid so far</div>
+          <div style="display:flex; justify-content:space-between; font-size:13px; color:var(--ink-muted); margin-bottom:8px;">
+            <span>Total Paid</span>
+            <strong style="color:var(--ink);" id="ov-paid">₹0</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:13px; color:var(--ink-muted); margin-bottom:14px;">
+            <span>Remaining</span>
+            <strong style="color:var(--ink);" id="ov-remaining">₹0</strong>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-fill" id="ov-progress" style="width:0%"></div>
+          </div>
+          <div style="font-size:11px; color:var(--ink-faint); margin-top:6px; text-align:right;" id="ov-progress-label">0% paid</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Active Snapshot</div>
+          <div class="card-subtitle">Current orders in progress</div>
+          <div id="overviewActiveOrders"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─ Payment ─ -->
+    <section class="section" id="section-payment">
+      <div class="page-header">
+        <div class="page-eyebrow">Financials</div>
+        <div class="page-title">Payment Tracking</div>
+        <div class="page-meta">Full transparency on all payments made</div>
+      </div>
+
+      <div class="policy-banner">
+        <div class="policy-icon">⚖️</div>
+        <div>
+          <div class="policy-title">Work Policy — Advance Payment Required</div>
+          <div class="policy-text">Work begins only after the advance payment is received. This ensures material procurement starts immediately.</div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top:20px;">
+        <div class="card">
+          <div class="card-title">Payment Summary</div>
+          <div class="card-subtitle">Advance vs remaining balance</div>
+          <div style="display:flex; justify-content:space-between; font-size:13px; color:var(--ink-muted); margin-bottom:6px;">
+            <span>Total Order Value</span>
+            <strong style="color:var(--ink);" id="totalValue">₹0</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:13px; color:var(--ink-muted); margin-bottom:6px;">
+            <span>Total Advance Paid</span>
+            <strong style="color:var(--success);" id="totalPaid">₹0</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:13px; color:var(--ink-muted); margin-bottom:16px;">
+            <span>Remaining Balance</span>
+            <strong style="color:var(--danger);" id="remainingAmount">₹0</strong>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-fill" id="paymentProgress" style="width:0%"></div>
+          </div>
+          <div style="font-size:11px; color:var(--ink-faint); margin-top:6px; text-align:right;" id="paymentPercent">0% paid</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Per Order Breakdown</div>
+          <div class="card-subtitle">Individual payment status</div>
+          <div id="perOrderPayments"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Payment Timeline</div>
+        <div class="card-subtitle">Track key payment events</div>
+        <div class="timeline" id="paymentTimeline"></div>
+      </div>
+    </section>
+
+    <!-- ─ Orders ─ -->
+    <section class="section" id="section-orders">
+      <div class="page-header">
+        <div class="page-eyebrow">Live Status</div>
+        <div class="page-title">Order Tracking</div>
+        <div class="page-meta">Real-time progress of your active orders</div>
+      </div>
+      <div id="ordersContainer"></div>
+    </section>
+
+    <!-- ─ Delays ─ -->
+    <section class="section" id="section-delays">
+      <div class="page-header">
+        <div class="page-eyebrow">Transparency</div>
+        <div class="page-title">Delays & Shipment</div>
+        <div class="page-meta">Full visibility on delays and delivery status</div>
+      </div>
+      <div id="delayContainer"></div>
+    </section>
+
+    <!-- ─ History ─ -->
+    <section class="section" id="section-history">
+      <div class="page-header">
+        <div class="page-eyebrow">Records</div>
+        <div class="page-title">Order History</div>
+        <div class="page-meta">All orders with complete details</div>
+      </div>
+
+      <div class="filter-bar">
+        <label>Filter Status:</label>
+        <select class="filter-select" id="filterStatus" onchange="filterOrders()">
+          <option value="all">All Orders</option>
+          <option value="active">Active</option>
+          <option value="completed">Completed</option>
+          <option value="delayed">Delayed</option>
+        </select>
+        <label>Month:</label>
+        <select class="filter-select" id="filterDate" onchange="filterOrders()">
+          <option value="all">All Months</option>
+          <option value="2024-03">March 2024</option>
+          <option value="2024-02">February 2024</option>
+          <option value="2024-01">January 2024</option>
+        </select>
+      </div>
+
+      <div id="historyContainer"></div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+// ── Session ──
+const session = requireAuth();
+let orders = [];
+
+// ── Navigation ──
+const sectionTitles = {
+  overview: ['Dashboard', 'Overview'],
+  payment:  ['Payment', 'Tracking'],
+  orders:   ['Order', 'Tracking'],
+  delays:   ['Delays &', 'Shipment'],
+  history:  ['Order', 'History'],
+};
+
+function navigate(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  el.classList.add('active');
+  const t = sectionTitles[id];
+  document.getElementById('header-title').innerHTML = t[0] + ' <span>' + t[1] + '</span>';
+  closeSidebar();
+}
+
+// ── Logic ──
+function loadDashboard() {
+  document.getElementById('clientName').innerText = session.name;
+  document.getElementById('clientId').innerText = 'Client #' + session.id;
+  document.getElementById('clientAvatar').innerText = session.name.split(' ').map(n=>n[0]).join('').toUpperCase();
+  document.getElementById('welcomeGreeting').innerText = 'Welcome back, ' + session.name.split(' ')[0];
+
+  const stats = getClientStats(session.id);
+  document.getElementById('totalOrders').innerText = stats.total;
+  document.getElementById('activeOrders').innerText = stats.active;
+  document.getElementById('completedOrders').innerText = stats.completed;
+  document.getElementById('overallProgress').innerText = stats.avgProgress + '%';
+  
+  document.getElementById('ov-paid').innerText = fmtCurrency(stats.totalPaid);
+  document.getElementById('ov-remaining').innerText = fmtCurrency(stats.totalDue);
+  
+  const totalVal = stats.totalPaid + stats.totalDue;
+  const pct = totalVal ? Math.round((stats.totalPaid / totalVal) * 100) : 0;
+  document.getElementById('ov-progress').style.width = pct + '%';
+  document.getElementById('ov-progress-label').innerText = pct + '% paid';
+
+  // Active snapshot
+  const snap = document.getElementById('overviewActiveOrders');
+  const activeOrders = orders.filter(o => o.progress < 100);
+  if (!activeOrders.length) {
+    snap.innerHTML = '<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-label">No active orders</div></div>';
+  } else {
+    snap.innerHTML = activeOrders.map(o => `
+      <div style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+          <span style="font-size:13.5px;font-weight:500;">${o.id}</span>
+          ${o.delay.hasDelay ? '<span class="chip chip-danger">⚠ Delayed</span>' : '<span class="chip chip-info">Active</span>'}
+        </div>
+        <div style="font-size:12px;color:var(--ink-muted);margin-bottom:6px;">${o.title}</div>
+        <div class="progress-label">
+          <span>${o.progress}% complete</span>
+          <span class="chip ${o.shipment.status === 'delivered' ? 'chip-success' : 'chip-gold'}">${o.shipment.status.toUpperCase()}</span>
+        </div>
+        <div class="progress-wrap"><div class="progress-fill" style="width:${o.progress}%"></div></div>
+      </div>
+    `).join('<hr class="divider">');
+  }
+  
+  document.getElementById('activeOrdersBadge').innerText = activeOrders.length;
+  document.getElementById('overviewMeta').innerText = `Last updated: Today, ${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}`;
+}
+
+function loadPayments() {
+  const stats = getClientStats(session.id);
+  const totalVal = stats.totalPaid + stats.totalDue;
+  const pct = totalVal ? Math.round((stats.totalPaid / totalVal) * 100) : 0;
+
+  document.getElementById('totalValue').innerText = fmtCurrency(totalVal);
+  document.getElementById('totalPaid').innerText = fmtCurrency(stats.totalPaid);
+  document.getElementById('remainingAmount').innerText = fmtCurrency(stats.totalDue);
+  document.getElementById('paymentProgress').style.width = pct + '%';
+  document.getElementById('paymentPercent').innerText = pct + '% of total value paid';
+
+  const perOrder = document.getElementById('perOrderPayments');
+  perOrder.innerHTML = orders.map(o => {
+    const p = Math.round((o.advancePaid / o.totalAmount) * 100);
+    return `
+      <div style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <span style="font-size:13px;font-weight:500;">${o.id} <span style="font-size:11px;color:var(--ink-faint);font-weight:400;">— ${o.title}</span></span>
+          <span style="font-size:12px;color:var(--ink-muted);">${fmtCurrency(o.advancePaid)} / ${fmtCurrency(o.totalAmount)}</span>
+        </div>
+        <div class="progress-wrap" style="height:6px;">
+          <div class="progress-fill" style="width:${p}%;${p===100?'background:var(--success)':''}"></div>
+        </div>
+        <div style="font-size:11px;color:var(--ink-faint);margin-top:3px;text-align:right;">${p}% paid</div>
+      </div>
+    `;
+  }).join('');
+
+  const tl = document.getElementById('paymentTimeline');
+  const events = [];
+  orders.forEach(o => {
+    if (o.stages.payment.date) events.push({ date: o.stages.payment.date, type:'done', title:`Advance confirmed for ${o.id}`, sub:o.title });
+    if (o.stages.manufacturing.date) events.push({ date: o.stages.manufacturing.date, type:'done', title:`Work started on ${o.id}`, sub:`Advance confirmed, production started` });
+  });
+  events.sort((a,b) => new Date(b.date) - new Date(a.date));
+  tl.innerHTML = events.map(e => `
+    <div class="tl-item">
+      <div class="tl-dot done"></div>
+      <div class="tl-title">${e.title}</div>
+      <div class="tl-sub">${fmtDate(e.date)} · ${e.sub}</div>
+    </div>
+  `).join('');
+}
+
+function loadOrders() {
+  const container = document.getElementById('ordersContainer');
+  const activeOrders = orders.filter(o => o.progress < 100);
+  if (!activeOrders.length) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-label">No active orders</div></div>';
+    return;
+  }
+  container.innerHTML = activeOrders.map(o => `
+    <div class="order-card ${o.delay.hasDelay ? 'delayed' : ''}">
+      <div class="order-header">
+        <div>
+          <div class="order-id">${o.id}</div>
+          <div class="order-product">${o.title}</div>
+        </div>
+        <div class="order-badges">
+          ${o.delay.hasDelay ? '<span class="chip chip-danger">⚠ Delayed</span>' : '<span class="chip chip-info">Active</span>'}
+        </div>
+      </div>
+      <div class="order-meta">
+        <div class="meta-item"><div class="meta-label">Created</div><div class="meta-value">${fmtDate(o.createdAt)}</div></div>
+        <div class="meta-item"><div class="meta-label">Total Value</div><div class="meta-value">${fmtCurrency(o.totalAmount)}</div></div>
+        <div class="meta-item"><div class="meta-label">Expected</div><div class="meta-value">${fmtDate(o.shipment.expectedDate)}</div></div>
+      </div>
+      <div style="margin:20px 0;">
+        <div class="stage-row">
+          <div class="stage-icon ${o.stages.payment.status === 'done' ? 'done' : 'pending'}">${o.stages.payment.status === 'done' ? '✓' : '○'}</div>
+          <div class="stage-label">Advance Payment</div>
+          <div class="stage-detail">${o.stages.payment.status === 'done' ? 'Confirmed' : 'Pending'}</div>
+        </div>
+        <div class="stage-row">
+          <div class="stage-icon ${o.stages.procurement.status === 'done' ? 'done' : 'pending'}">${o.stages.procurement.status === 'done' ? '✓' : '○'}</div>
+          <div class="stage-label">Material Procurement</div>
+          <div class="stage-detail">${o.stages.procurement.status === 'done' ? 'Completed' : 'Pending'}</div>
+        </div>
+        <div class="stage-row">
+          <div class="stage-icon ${o.stages.manufacturing.status === 'done' ? 'done' : o.stages.manufacturing.status === 'in-progress' ? 'inprog' : 'pending'}">${o.stages.manufacturing.status === 'done' ? '✓' : o.stages.manufacturing.status === 'in-progress' ? '⟳' : '○'}</div>
+          <div class="stage-label">Manufacturing</div>
+          <div class="stage-detail">${o.stages.manufacturing.status.replace('-',' ').toUpperCase()}</div>
+        </div>
+        <div class="stage-row">
+          <div class="stage-icon ${o.stages.delivery.status === 'done' ? 'done' : 'pending'}">${o.stages.delivery.status === 'done' ? '✓' : '○'}</div>
+          <div class="stage-label">Delivery</div>
+          <div class="stage-detail">${o.shipment.status.toUpperCase()}</div>
+        </div>
+      </div>
+      <div class="progress-label"><span>Overall Progress</span><strong>${o.progress}%</strong></div>
+      <div class="progress-wrap"><div class="progress-fill" style="width:${o.progress}%"></div></div>
+    </div>
+  `).join('');
+}
+
+function loadDelays() {
+  const container = document.getElementById('delayContainer');
+  container.innerHTML = orders.map(o => `
+    <div class="card" style="margin-bottom:18px; border-left:4px solid ${o.delay.hasDelay ? 'var(--danger)' : 'var(--success)'}">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:15px;">
+        <div>
+          <div class="card-title">${o.id}</div>
+          <div class="card-subtitle">${o.title}</div>
+        </div>
+        ${o.delay.hasDelay ? '<span class="chip chip-danger">⚠ Delayed</span>' : '<span class="chip chip-success">✓ On Time</span>'}
+      </div>
+      ${o.delay.hasDelay ? `
+        <div style="background:var(--gold-pale); padding:12px; border-radius:var(--radius-sm); margin-bottom:15px;">
+          <div style="font-size:12px; font-weight:600; color:#856404; margin-bottom:2px;">Reason for Delay</div>
+          <div style="font-size:13px; color:#856404;">${o.delay.reason}</div>
+        </div>
+      ` : ''}
+      <div class="order-meta">
+        <div class="meta-item"><div class="meta-label">Shipment</div><div class="meta-value">${o.shipment.status.toUpperCase()}</div></div>
+        <div class="meta-item"><div class="meta-label">Expected Date</div><div class="meta-value">${fmtDate(o.shipment.expectedDate)}</div></div>
+        <div class="meta-item"><div class="meta-label">Tracking ID</div><div class="meta-value">${o.shipment.trackingId || '—'}</div></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderHistory(list) {
+  const container = document.getElementById('historyContainer');
+  if (!list.length) {
+    container.innerHTML = '<div class="empty-state">No orders found</div>';
+    return;
+  }
+  container.innerHTML = list.map(o => `
+    <div class="order-card ${o.progress === 100 ? 'completed' : ''}">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <div class="order-id">${o.id}</div>
+        <span class="chip ${o.progress === 100 ? 'chip-success' : 'chip-info'}">${o.progress === 100 ? 'Completed' : 'Active'}</span>
+      </div>
+      <div style="font-size:13px; color:var(--ink-muted); margin-bottom:12px;">${o.title}</div>
+      <div class="order-meta">
+        <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">${fmtDate(o.createdAt)}</div></div>
+        <div class="meta-item"><div class="meta-label">Paid</div><div class="meta-value">${fmtCurrency(o.advancePaid)}</div></div>
+        <div class="meta-item"><div class="meta-label">Total</div><div class="meta-value">${fmtCurrency(o.totalAmount)}</div></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterOrders() {
+  const status = document.getElementById('filterStatus').value;
+  const date = document.getElementById('filterDate').value;
+  let filtered = orders;
+  if (status === 'completed') filtered = filtered.filter(o => o.progress === 100);
+  else if (status === 'active') filtered = filtered.filter(o => o.progress < 100);
+  else if (status === 'delayed') filtered = filtered.filter(o => o.delay.hasDelay);
+  if (date !== 'all') filtered = filtered.filter(o => o.createdAt.startsWith(date));
+  renderHistory(filtered);
+}
+
+// ── Shared ──
+function handleSearch() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const results = document.getElementById('searchResults');
+  if (!q) { results.classList.remove('visible'); return; }
+  const matched = orders.filter(o => o.id.toLowerCase().includes(q) || o.title.toLowerCase().includes(q));
+  results.innerHTML = matched.map(o => `
+    <div class="search-result-item" onclick="navigate('orders', document.querySelector('.nav-item:nth-child(4)'))">
+      <div class="search-result-dot" style="background:${o.progress===100?'var(--success)':'var(--gold)'}"></div>
+      <div><strong>${o.id}</strong><br><small>${o.title}</small></div>
+    </div>
+  `).join('');
+  results.classList.add('visible');
+}
+
+function hideSearch() { setTimeout(()=>document.getElementById('searchResults').classList.remove('visible'), 200); }
+
+function loadNotifications() {
+  const list = document.getElementById('notifList');
+  const notifs = [
+    { icon: "🚚", title: "Order Shipped", sub: "Order #ORD-2024-002 has been delivered", time: "2h ago" },
+    { icon: "💰", title: "Advance Received", sub: "Payment confirmed for #ORD-2024-001", time: "1d ago" }
+  ];
+  list.innerHTML = notifs.map(n => `
+    <div class="notif-item">
+      <div class="notif-item-icon">${n.icon}</div>
+      <div class="notif-item-text"><div class="notif-item-title">${n.title}</div><div class="notif-item-sub">${n.sub} · ${n.time}</div></div>
+    </div>
+  `).join('');
+}
+
+function clearNotifs() { document.getElementById('notifList').innerHTML = '<div style="padding:20px; text-align:center; color:var(--ink-faint);">No notifications</div>'; }
+
+function downloadReport() {
+  const lines = ['Ekokintsugi Client Report', 'Generated: ' + new Date().toLocaleString(), ''];
+  orders.forEach(o => lines.push(`${o.id} | ${o.title} | ${o.progress}% | ${o.shipment.status.toUpperCase()}`));
+  const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'eco-report-' + session.id + '.txt';
+  a.click();
+}
+
+// ── Init ──
+document.addEventListener('DOMContentLoaded', () => {
+  orders = getOrdersByClient(session.id);
+  loadDashboard();
+  loadPayments();
+  loadOrders();
+  loadDelays();
+  renderHistory(orders);
+  loadNotifications();
+});
+</script>
+</body>
+</html>

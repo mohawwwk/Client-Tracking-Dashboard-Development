@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ECO — Admin Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="styles.css"/>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<div class="app">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">ECO</div>
+      <div class="logo-sub">Admin Portal</div>
+    </div>
+
+    <div class="sidebar-client">
+      <div class="client-avatar">AD</div>
+      <div>
+        <div class="client-name">Administrator</div>
+        <div class="client-id">System Access</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Management</div>
+
+      <a class="nav-item active" onclick="navigate('overview', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        Dashboard
+      </a>
+
+      <a class="nav-item" onclick="navigate('clients', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        Clients
+      </a>
+
+      <a class="nav-item" onclick="navigate('orders', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
+        </svg>
+        Orders
+      </a>
+
+      <div class="nav-section-label">Account</div>
+      <a class="nav-item" onclick="handleLogout()">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Logout
+      </a>
+    </nav>
+  </aside>
+
+  <!-- ── Header ── -->
+  <header class="header">
+    <button class="hamburger" onclick="toggleSidebar()">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="header-title" id="header-title">Admin <span>Dashboard</span></div>
+    <div class="header-actions">
+      <button class="btn btn-primary btn-sm" onclick="openModal('modal-new-order')">+ New Order</button>
+    </div>
+  </header>
+
+  <!-- ── Main ── -->
+  <main class="main">
+
+    <!-- ─ Overview Section ─ -->
+    <section class="section active" id="section-overview">
+      <div class="grid-4">
+        <div class="stat-card accent-sage">
+          <div class="stat-label">Total Orders</div>
+          <div class="stat-value" id="stat-total-orders">0</div>
+        </div>
+        <div class="stat-card accent-gold">
+          <div class="stat-label">Active Orders</div>
+          <div class="stat-value" id="stat-active-orders">0</div>
+        </div>
+        <div class="stat-card accent-green">
+          <div class="stat-label">Completed</div>
+          <div class="stat-value" id="stat-completed-orders">0</div>
+        </div>
+        <div class="stat-card accent-muted">
+          <div class="stat-label">Total Clients</div>
+          <div class="stat-value" id="stat-total-clients">0</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Recent Orders</div>
+        <div class="table-wrap">
+          <table id="table-recent-orders">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Client</th>
+                <th>Item</th>
+                <th>Progress</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─ Clients Section ─ -->
+    <section class="section" id="section-clients">
+      <div class="page-header" style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div class="page-title">Clients</div>
+          <div class="page-meta">Manage your customer database</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('modal-add-client')">+ Add Client</button>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table id="table-clients">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Orders</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─ Orders Section ─ -->
+    <section class="section" id="section-orders">
+      <div class="page-header" style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div class="page-title">Orders</div>
+          <div class="page-meta">Full order lifecycle management</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('modal-new-order')">+ New Order</button>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table id="table-all-orders">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Client</th>
+                <th>Product</th>
+                <th>Amount</th>
+                <th>Progress</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ── Modals ── -->
+
+<!-- Add Client Modal -->
+<div class="modal-overlay" id="modal-add-client">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add New Client</div>
+      <button class="btn-icon" onclick="closeModal('modal-add-client')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="form-add-client">
+        <div class="field">
+          <label>Full Name</label>
+          <input type="text" id="client-name" required placeholder="e.g. John Doe"/>
+        </div>
+        <div class="field">
+          <label>Email Address</label>
+          <input type="email" id="client-email" required placeholder="e.g. john@example.com"/>
+        </div>
+        <div class="field">
+          <label>Phone Number</label>
+          <input type="tel" id="client-phone" required placeholder="e.g. 9876543210"/>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="text" id="client-pass" value="client123" required/>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-add-client')">Cancel</button>
+      <button class="btn btn-primary" onclick="handleAddClient()">Save Client</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Order Modal -->
+<div class="modal-overlay" id="modal-new-order">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Create New Order</div>
+      <button class="btn-icon" onclick="closeModal('modal-new-order')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="form-new-order">
+        <div class="field">
+          <label>Select Client</label>
+          <select id="order-client-id" required></select>
+        </div>
+        <div class="field">
+          <label>Product Title</label>
+          <input type="text" id="order-title" required placeholder="e.g. Antique Vase Repair"/>
+        </div>
+        <div class="field">
+          <label>Total Amount (₹)</label>
+          <input type="number" id="order-total" required placeholder="e.g. 15000"/>
+        </div>
+        <div class="field">
+          <label>Advance Paid (₹)</label>
+          <input type="number" id="order-advance" value="0"/>
+        </div>
+        <div class="field">
+          <label>Expected Delivery</label>
+          <input type="date" id="order-expected"/>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-new-order')">Cancel</button>
+      <button class="btn btn-primary" onclick="handleNewOrder()">Create Order</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Order Modal -->
+<div class="modal-overlay" id="modal-edit-order">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Edit Order <span id="edit-order-id"></span></div>
+      <button class="btn-icon" onclick="closeModal('modal-edit-order')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="form-edit-order">
+        <input type="hidden" id="edit-id"/>
+        
+        <div class="field">
+          <label>Overall Progress (<span id="progress-val">0</span>%)</label>
+          <input type="range" id="edit-progress" min="0" max="100" step="5" oninput="document.getElementById('progress-val').innerText=this.value"/>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label>Payment Stage</label>
+            <select id="edit-stage-payment">
+              <option value="pending">Pending</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Procurement</label>
+            <select id="edit-stage-procurement">
+              <option value="pending">Pending</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label>Manufacturing</label>
+            <select id="edit-stage-mfg">
+              <option value="pending">Pending</option>
+              <option value="in-progress">In Progress</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Delivery</label>
+            <select id="edit-stage-delivery">
+              <option value="pending">Pending</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Delay Status</label>
+          <select id="edit-has-delay">
+            <option value="false">No Delay</option>
+            <option value="true">Report Delay</option>
+          </select>
+        </div>
+        <div class="field" id="delay-reason-field">
+          <label>Delay Reason</label>
+          <textarea id="edit-delay-reason" rows="2"></textarea>
+        </div>
+
+        <div class="field">
+          <label>Shipment Status</label>
+          <select id="edit-shipment-status">
+            <option value="pending">Pending</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+          </select>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-edit-order')">Cancel</button>
+      <button class="btn btn-primary" onclick="handleUpdateOrder()">Update Order</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Init ──
+requireAdmin();
+
+const sectionTitles = {
+  overview: ['Admin', 'Dashboard'],
+  clients:  ['Client', 'Management'],
+  orders:   ['Order', 'Management'],
+};
+
+function navigate(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  el.classList.add('active');
+  const t = sectionTitles[id];
+  document.getElementById('header-title').innerHTML = t[0] + ' <span>' + t[1] + '</span>';
+  closeSidebar();
+  loadSection(id);
+}
+
+function loadSection(id) {
+  if (id === 'overview') loadOverview();
+  if (id === 'clients') loadClients();
+  if (id === 'orders') loadAllOrders();
+}
+
+// ── Overview ──
+function loadOverview() {
+  const stats = getStats();
+  const clients = getClients();
+  document.getElementById('stat-total-orders').innerText = stats.total;
+  document.getElementById('stat-active-orders').innerText = stats.active;
+  document.getElementById('stat-completed-orders').innerText = stats.completed;
+  document.getElementById('stat-total-clients').innerText = clients.length;
+
+  const orders = getOrders().slice(-5).reverse(); // Last 5
+  const tbody = document.querySelector('#table-recent-orders tbody');
+  tbody.innerHTML = orders.map(o => {
+    const client = getClientById(o.clientId);
+    return `
+      <tr>
+        <td><strong>${o.id}</strong></td>
+        <td>${client ? client.name : 'Unknown'}</td>
+        <td>${o.title}</td>
+        <td>
+          <div class="progress-wrap" style="width:100px; height:6px;">
+            <div class="progress-fill" style="width:${o.progress}%"></div>
+          </div>
+          <span style="font-size:11px;">${o.progress}%</span>
+        </td>
+        <td>${o.progress === 100 ? '<span class="chip chip-success">Completed</span>' : o.delay.hasDelay ? '<span class="chip chip-danger">Delayed</span>' : '<span class="chip chip-info">Active</span>'}</td>
+        <td><button class="btn btn-secondary btn-sm" onclick="editOrder('${o.id}')">Edit</button></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// ── Clients ──
+function loadClients() {
+  const clients = getClients();
+  const tbody = document.querySelector('#table-clients tbody');
+  tbody.innerHTML = clients.map(c => {
+    const cOrders = getOrdersByClient(c.id);
+    return `
+      <tr onclick="viewClientOrders('${c.id}')" style="cursor:pointer">
+        <td>${c.id}</td>
+        <td><strong>${c.name}</strong></td>
+        <td>${c.email}</td>
+        <td>${c.phone}</td>
+        <td><span class="nav-badge" style="margin:0">${cOrders.length}</span></td>
+        <td>${fmtDate(c.joinedAt)}</td>
+        <td><button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); handleDeleteClient('${c.id}')">Delete</button></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function handleAddClient() {
+  const name = document.getElementById('client-name').value;
+  const email = document.getElementById('client-email').value;
+  const phone = document.getElementById('client-phone').value;
+  const password = document.getElementById('client-pass').value;
+  
+  if (!name || !email || !phone) return alert('Fill all fields');
+  
+  addClient({ name, email, phone, password });
+  closeModal('modal-add-client');
+  loadClients();
+}
+
+function handleDeleteClient(id) {
+  if (confirm('Are you sure? This will delete the client and all their orders.')) {
+    deleteClient(id);
+    loadClients();
+  }
+}
+
+// ── Orders ──
+function loadAllOrders() {
+  const orders = getOrders().reverse();
+  const tbody = document.querySelector('#table-all-orders tbody');
+  tbody.innerHTML = orders.map(o => {
+    const client = getClientById(o.clientId);
+    return `
+      <tr>
+        <td><strong>${o.id}</strong></td>
+        <td>${client ? client.name : 'Unknown'}</td>
+        <td>${o.title}</td>
+        <td>${fmtCurrency(o.totalAmount)}</td>
+        <td>
+          <div class="progress-wrap" style="width:100px; height:6px;">
+            <div class="progress-fill" style="width:${o.progress}%"></div>
+          </div>
+          <span style="font-size:11px;">${o.progress}%</span>
+        </td>
+        <td>${o.progress === 100 ? '<span class="chip chip-success">Completed</span>' : o.delay.hasDelay ? '<span class="chip chip-danger">Delayed</span>' : '<span class="chip chip-info">Active</span>'}</td>
+        <td><button class="btn btn-secondary btn-sm" onclick="editOrder('${o.id}')">Edit</button></td>
+      </tr>
+    `;
+  }).join('');
+
+  // Populate client dropdown for new order
+  const clientSelect = document.getElementById('order-client-id');
+  clientSelect.innerHTML = getClients().map(c => `<option value="${c.id}">${c.name} (${c.id})</option>`).join('');
+}
+
+function handleNewOrder() {
+  const clientId = document.getElementById('order-client-id').value;
+  const title = document.getElementById('order-title').value;
+  const totalAmount = Number(document.getElementById('order-total').value);
+  const advancePaid = Number(document.getElementById('order-advance').value);
+  const expectedDate = document.getElementById('order-expected').value;
+
+  if (!clientId || !title || !totalAmount) return alert('Fill required fields');
+
+  addOrder({ clientId, title, totalAmount, advancePaid, expectedDate });
+  closeModal('modal-new-order');
+  loadAllOrders();
+}
+
+function editOrder(id) {
+  const o = getOrderById(id);
+  if (!o) return;
+
+  document.getElementById('edit-order-id').innerText = id;
+  document.getElementById('edit-id').value = id;
+  document.getElementById('edit-progress').value = o.progress;
+  document.getElementById('progress-val').innerText = o.progress;
+  document.getElementById('edit-stage-payment').value = o.stages.payment.status;
+  document.getElementById('edit-stage-procurement').value = o.stages.procurement.status;
+  document.getElementById('edit-stage-mfg').value = o.stages.manufacturing.status;
+  document.getElementById('edit-stage-delivery').value = o.stages.delivery.status;
+  document.getElementById('edit-has-delay').value = String(o.delay.hasDelay);
+  document.getElementById('edit-delay-reason').value = o.delay.reason;
+  document.getElementById('edit-shipment-status').value = o.shipment.status;
+
+  openModal('modal-edit-order');
+}
+
+function handleUpdateOrder() {
+  const id = document.getElementById('edit-id').value;
+  const progress = Number(document.getElementById('edit-progress').value);
+  
+  const patch = {
+    progress,
+    stages: {
+      payment: { status: document.getElementById('edit-stage-payment').value, date: document.getElementById('edit-stage-payment').value === 'done' ? today() : null },
+      procurement: { status: document.getElementById('edit-stage-procurement').value, date: document.getElementById('edit-stage-procurement').value === 'done' ? today() : null },
+      manufacturing: { status: document.getElementById('edit-stage-mfg').value, date: document.getElementById('edit-stage-mfg').value === 'done' ? today() : null },
+      delivery: { status: document.getElementById('edit-stage-delivery').value, date: document.getElementById('edit-stage-delivery').value === 'done' ? today() : null },
+    },
+    delay: {
+      hasDelay: document.getElementById('edit-has-delay').value === 'true',
+      reason: document.getElementById('edit-delay-reason').value,
+      reportedAt: document.getElementById('edit-has-delay').value === 'true' ? today() : null
+    },
+    shipment: {
+      status: document.getElementById('edit-shipment-status').value
+    }
+  };
+
+  updateOrder(id, patch);
+  closeModal('modal-edit-order');
+  loadSection('orders');
+  if (document.getElementById('section-overview').classList.contains('active')) loadOverview();
+}
+
+function viewClientOrders(clientId) {
+  const navOrders = document.querySelector('.nav-item[onclick*="orders"]');
+  navigate('orders', navOrders);
+  // Optional: filter orders table to show only this client
+}
+
+// Initial load
+document.addEventListener('DOMContentLoaded', () => {
+  loadOverview();
+});
+</script>
+</body>
+</html>
